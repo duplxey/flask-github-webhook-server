@@ -1,5 +1,6 @@
 import hmac
 import os
+import subprocess
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -12,6 +13,10 @@ load_dotenv(BASE_DIR / '.env')
 
 
 app = Flask(__name__)
+API_NAME = os.getenv('API_NAME')
+API_DESCRIPTION = os.getenv('API_DESCRIPTION')
+API_VERSION = os.getenv('API_VERSION')
+DEPLOY_COMMAND = os.getenv('DEPLOY_COMMAND')
 GITHUB_WEBHOOK_SECRET = os.getenv('GITHUB_WEBHOOK_SECRET')
 
 
@@ -32,9 +37,9 @@ def verify_signature():
 @app.route('/')
 def index():
     return {
-        'name': 'dup-cicd',
-        'description': 'simple ci/cd server',
-        'version': 1.0,
+        'name': API_NAME,
+        'description': API_DESCRIPTION,
+        'version': API_VERSION,
     }
 
 
@@ -48,7 +53,7 @@ def deploy():
             'verified': False,
         }, 400
 
-    # TODO: perform some tasks (e.g. run a script)
+    subprocess.call(DEPLOY_COMMAND, shell=True)
 
     return {
         'message': 'Deploying...',
